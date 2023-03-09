@@ -1,0 +1,45 @@
+version: '3.4'
+#Password: noubissie
+services:    
+  todo-app:
+    container_name: todo-app
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: dev
+    volumes:
+      - .:/app
+    environment:
+      NODE_ENV: development
+    command: yarn dev
+    ports:
+      - "3030:3000"
+    depends_on:
+      - postgres
+    networks:
+     - default
+    env_file: ./.env.local
+
+  postgres:
+    image: postgres:latest
+    restart: on-failure
+    container_name: todo-db
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      POSTGRES_DB: todo-db
+      SERVICE_TAGS: postgres-db
+      SERVICE_NAME: todo-db
+    volumes:
+       - todoDB:/var/lib/postgresql/data/
+    ports: 
+      - 5434:5432
+    labels:
+      - "traefik.enable=false"
+    networks:
+     - default
+     
+volumes:
+  todoDB:
+    driver: local
